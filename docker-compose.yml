@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    container_name: complaint-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000/api
+      - REACT_APP_DEFAULT_LANGUAGE=en
+      - REACT_APP_BASE_URL=http://localhost:3000/digit-ui/citizen/login
+    networks:
+      - complaint-network
+
+networks:
+  complaint-network:
+    driver: bridge

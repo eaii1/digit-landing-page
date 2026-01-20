@@ -1,0 +1,33 @@
+:root {
+  --pmo-blue: rgb(40, 148, 184) ;
+  --pmo-dark: rgb(3, 75, 100) ;
+  --pmo-light-blue: rgb(48, 88, 101) ;
+  --pmo-accent: #e6f0ff;
+  --ethio-green: #078930;
+  --ethio-yellow: #FCDD09;
+  --ethio-red: #DA121A;
+  --ethio-light: #f8f9fa;
+  --ethio-dark: #1a1a1a;
+  --ethio-gray: #666666;
+  --ethio-border: #dddddd;
+  --white: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--ethio-light);
+  color: var(--ethio-dark);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
