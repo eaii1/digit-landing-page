@@ -1,35 +1,34 @@
 # Build stage
 FROM node:18-alpine AS build
 
-# Set working directory
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm ci --only=production
-
-# Copy application source code
 COPY . .
-
-# Copy .env file (if exists)
 COPY .env ./
-
-# Build the application
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM alpine:latest
 
-# Copy built application from build stage
+# Install dependencies (nginx, supervisord, ssh, kubectl)
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    openssh-client \
+    kubectl
+
+# Copy built React app
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy custom nginx configuration
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisord.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start supervisord
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]

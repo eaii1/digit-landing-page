@@ -23,8 +23,8 @@ const HomePage = ({ onNewComplaint, language }) => {
       setLoading(true);
       setError(null);
       console.log('Fetching data from API...');
-      
-      const response = await fetch('http://localhost:9260/pgr-analytics/v1/_summary?tenantId=ethiopia.citya');
+      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:9260';
+      const response = await fetch(`${baseUrl}/pgr-analytics/v1/_summary?tenantId=ethiopia.citya`);
       
       console.log('Response status:', response.status);
       
