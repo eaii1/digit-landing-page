@@ -2,14 +2,19 @@ version: '3.8'
 
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        # Pass these as build args so the Dockerfile can "bake" them in
+        - REACT_APP_API_URL=/pgr-analytics
+        - REACT_APP_BASE_URL=/complaint
     container_name: complaint-frontend
     ports:
       - "3000:80"
     environment:
-      - REACT_APP_API_URL=http://localhost:5000/api
       - REACT_APP_DEFAULT_LANGUAGE=en
-      - REACT_APP_BASE_URL=http://localhost:3000/digit-ui/citizen/login
+      - REACT_APP_API_URL=/pgr-analytics
+      - REACT_APP_BASE_URL=/complaint
     networks:
       - complaint-network
 
