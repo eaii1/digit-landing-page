@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: complaint-frontend:latest
     container_name: complaint-frontend
     ports:
       - "3000:80"
@@ -12,6 +15,7 @@ services:
       - REACT_APP_BASE_URL=http://localhost:3000/digit-ui/citizen/login
     networks:
       - complaint-network
+    restart: unless-stopped
 
 networks:
   complaint-network:

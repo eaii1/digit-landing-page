@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 # Set working directory
 WORKDIR /app
@@ -7,14 +7,15 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including devDependencies for build)
+# Using npm install instead of npm ci to handle lock file sync issues
+RUN npm install
 
 # Copy application source code
 COPY . .
 
-# Copy .env file (if exists)
-COPY .env ./
+# Copy .env file (if exists) - using wildcard to avoid build failure if .env doesn't exist
+COPY .env* ./
 
 # Build the application
 RUN npm run build
