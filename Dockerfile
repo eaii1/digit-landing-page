@@ -1,36 +1,34 @@
 # Build stage
 FROM node:20-alpine AS build
 
-# Set working directory
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies (including devDependencies for build)
-# Using npm install instead of npm ci to handle lock file sync issues
-RUN npm install
-
-# Copy application source code
+RUN npm ci --only=production
 COPY . .
-
-# Copy .env file (if exists) - using wildcard to avoid build failure if .env doesn't exist
-COPY .env* ./
-
-# Build the application
+COPY .env ./
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM alpine:latest
 
-# Copy built application from build stage
+# Install dependencies (nginx, supervisord, ssh, kubectl)
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    openssh-client \
+    kubectl
+
+# Copy built React app
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy custom nginx configuration
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisord.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start supervisord
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]

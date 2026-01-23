@@ -16,6 +16,7 @@ const HomePage = ({ onNewComplaint, language }) => {
 
   useEffect(() => {
     fetchDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
   const fetchDashboardData = async () => {
@@ -23,13 +24,50 @@ const HomePage = ({ onNewComplaint, language }) => {
       setLoading(true);
       setError(null);
       console.log('Fetching data from API...');
+      // In development, use the proxy (/api) to avoid CORS issues
+      // The proxy forwards /api requests to http://localhost:9260
+      // In production, use REACT_APP_API_URL or default to http://localhost:9260
+      let baseUrl;
+      if (process.env.NODE_ENV === 'development') {
+        // Use proxy in development to avoid CORS
+        baseUrl = '/api';
+        console.log('Using proxy (/api) to avoid CORS in development');
+      } else {
+        // In production, use REACT_APP_API_URL or default
+        baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:9260';
+        // Validate and correct the API URL if it's pointing to the wrong port
+        if (baseUrl.includes(':3000') || baseUrl.includes(':5000')) {
+          console.warn(`REACT_APP_API_URL (${baseUrl}) points to wrong port. Using http://localhost:9260 for pgr-analytics API.`);
+          baseUrl = 'http://localhost:9260';
+        }
+      }
       
-      const response = await fetch('http://localhost:9260/pgr-analytics/v1/_summary?tenantId=ethiopia.citya');
+      const url = `${baseUrl}/pgr-analytics/v1/_summary?tenantId=ethiopia.citya`;
+      console.log('Fetching from URL:', url);
+      console.log('REACT_APP_API_URL from env:', process.env.REACT_APP_API_URL || 'not set');
+      console.log('Using baseUrl:', baseUrl);
+      console.log('NODE_ENV:', process.env.NODE_ENV);
+      
+      const response = await fetch(url);
       
       console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      // Check Content-Type before parsing
+      const contentType = response.headers.get('content-type');
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // For error responses, read as text to see what we got
+        const errorText = await response.text();
+        console.error('Error response body:', errorText.substring(0, 500));
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText.substring(0, 200)}`);
+      }
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        // If not JSON, read as text to see what we got
+        const text = await response.text();
+        console.error('Received non-JSON response:', text.substring(0, 500));
+        throw new Error(`Server returned ${contentType || 'unknown content type'} instead of JSON. The endpoint may not exist or the server may be returning an error page. Response preview: ${text.substring(0, 200)}`);
       }
       
       const data = await response.json();
@@ -43,7 +81,24 @@ const HomePage = ({ onNewComplaint, language }) => {
       console.error('Error details:', error.message);
       
       if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-        setError(`CORS Error: Browser blocked the request.`);
+        setError(`CORS Error: Browser blocked the request. Make sure the API server is running and CORS is configured.`);
+      } else if (error.message.includes('instead of JSON') || error.message.includes('text/html')) {
+        // Calculate the correct API URL (same logic as above)
+        let apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:9260';
+        if (apiUrl.includes(':3000') || apiUrl.includes(':5000')) {
+          apiUrl = 'http://localhost:9260';
+        }
+        setError(`Server returned HTML instead of JSON. This usually means:
+1. The API server is not running at ${apiUrl}
+2. The endpoint /pgr-analytics/v1/_summary does not exist
+3. The request is hitting the React app instead of the API server
+
+Please check:
+- Is the API server running at http://localhost:9260?
+- Test with: curl "http://localhost:9260/pgr-analytics/v1/_summary?tenantId=ethiopia.citya"
+- Update your .env file: REACT_APP_API_URL=http://localhost:9260 (or remove it to use default)
+- Did you restart the dev server after changing .env?
+- Current API URL being used: ${apiUrl}`);
       } else {
         setError(`Failed to load dashboard data: ${error.message}`);
       }
@@ -53,73 +108,81 @@ const HomePage = ({ onNewComplaint, language }) => {
   };
 
   const processElasticsearchData = (data) => {
-    console.log('Processing Elasticsearch data:', data);
+    console.log('Processing API data:', data);
     
-    // Extract data from aggregations
-    const grandTotal = data.aggregations?.grand_total_complaints?.value || 0;
-    const serviceBuckets = data.aggregations?.by_service_code?.buckets || [];
+    // Safely extract data from the actual API response structure
+    // Handle cases where structure might be slightly different or missing
+    const grandTotal = Number(data.aggregations?.["Grand Total Complaints"]) || 0;
+    const serviceBreakdown = data.aggregations?.["Service Breakdown"] || {};
     
-    // Calculate totals from buckets
+    // Validate that serviceBreakdown is an object
+    if (typeof serviceBreakdown !== 'object' || Array.isArray(serviceBreakdown)) {
+      console.warn('Service Breakdown is not in expected format:', serviceBreakdown);
+      setError('Invalid data format received from API');
+      return;
+    }
+    
+    // Calculate totals from service breakdown
     let totalPendingAssignment = 0;
     let totalPendingLME = 0;
     let totalResolved = 0;
     let totalRejected = 0;
     
-    // Create department data from buckets
-    const departmentData = serviceBuckets.map(bucket => {
-      const serviceKey = bucket.key;
-      const totalComplaints = bucket.doc_count;
-      
-      // Initialize status counts
-      let pendingAssignment = 0;
-      let pendingLME = 0;
-      let resolved = 0;
-      let rejected = 0;
-      
-      // Process status breakdown
-      if (bucket.status_breakdown?.buckets) {
-        bucket.status_breakdown.buckets.forEach(statusBucket => {
-          const status = statusBucket.key;
-          const count = statusBucket.doc_count;
-          
-          switch(status) {
-            case 'PENDINGFORASSIGNMENT':
-              pendingAssignment = count;
-              totalPendingAssignment += count;
-              break;
-            case 'PENDINGATLME':
-              pendingLME = count;
-              totalPendingLME += count;
-              break;
-            case 'RESOLVED':
-              resolved = count;
-              totalResolved += count;
-              break;
-            case 'REJECTED':
-              rejected = count;
-              totalRejected += count;
-              break;
+    // Create department data from service breakdown - fully dynamic
+    // This will handle any number of services, new services, deleted services, etc.
+    const departmentData = Object.entries(serviceBreakdown)
+      .filter(([serviceName, serviceData]) => {
+        // Filter out any invalid entries (defensive programming)
+        return serviceName && serviceData && typeof serviceData === 'object';
+      })
+      .map(([serviceName, serviceData]) => {
+        // Safely extract values with defaults - handles missing or null values
+        const totalComplaints = Number(serviceData["Total Complaints"]) || 0;
+        const pendingAssignment = Number(serviceData["Pending for Assignment"]) || 0;
+        const pendingLME = Number(serviceData["Pending at LME"]) || 0;
+        const resolved = Number(serviceData["Resolved"]) || 0;
+        const rejected = Number(serviceData["Rejected"]) || 0;
+        
+        // Add to totals
+        totalPendingAssignment += pendingAssignment;
+        totalPendingLME += pendingLME;
+        totalResolved += resolved;
+        totalRejected += rejected;
+        
+        // Generate a unique key from service name (lowercase, no spaces, handle special chars)
+        // This ensures consistent IDs even if service names change slightly
+        const serviceKey = serviceName
+          .toLowerCase()
+          .replace(/\s+/g, '')
+          .replace(/[^a-z0-9]/g, '')
+          .substring(0, 50); // Limit length to prevent issues
+        
+        return {
+          id: serviceKey || `service-${Math.random().toString(36).substr(2, 9)}`, // Fallback ID if empty
+          name: serviceName || 'Unknown Service', // Use service name as-is from API
+          count: totalComplaints,
+          complaintsByStatus: {
+            pending_assignment: pendingAssignment,
+            pending_lme: pendingLME,
+            resolved: resolved,
+            rejected: rejected
           }
-        });
-      }
-      
-      return {
-        id: serviceKey,
-        name: serviceKey,
-        count: totalComplaints,
-        complaintsByStatus: {
-          pending_assignment: pendingAssignment,
-          pending_lme: pendingLME,
-          resolved: resolved,
-          rejected: rejected
-        }
-      };
-    });
+        };
+      })
+      .sort((a, b) => {
+        // Sort by count (descending) so most active services appear first
+        // This makes the UI more useful and handles dynamic ordering
+        return b.count - a.count;
+      });
     
-    // Set departments state
+    // Set departments state - this will automatically update UI with any services
     setDepartments(departmentData);
     
-    // Create stats data
+    // Log for debugging - shows what services were found
+    console.log(`Processed ${departmentData.length} services dynamically`);
+    console.log('Services found:', departmentData.map(d => d.name));
+    
+    // Create stats data - always the same structure regardless of services
     const statsData = [
       {
         id: 'total-complaints',
@@ -228,9 +291,14 @@ const HomePage = ({ onNewComplaint, language }) => {
       'taxandcustoms': 'ግብር እና ባንዲራ'
     };
     
-    return language === 'en' 
-      ? (nameMap[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()))
-      : (amharicMap[key] || key);
+    // Dynamic handling: For English, use service name as-is (API provides readable names)
+    // For Amharic, try translation or fallback to service name
+    if (language === 'en') {
+      return key || 'Unknown Service';
+    } else {
+      // Try to find translation, otherwise use the service name
+      return amharicMap[key] || key || 'ያልታወቀ አገልግሎት';
+    }
   };
 
   // Helper function to distribute values across months
