@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: joo21/complaint-landing
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+env:
+  # This matches the 'context-path' in your Spring Boot app
+  REACT_APP_API_URL: "/pgr-analytics"
+  REACT_APP_DEFAULT_LANGUAGE: "en"
+  # This is the sub-path where your UI is hosted
+  REACT_APP_BASE_URL: "/complaint"
