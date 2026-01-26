@@ -4,8 +4,11 @@ build
 .git
 .gitignore
 README.md
-.dockerignore
 .env.local
-.env.development
-.env.test
-.git
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
+*.log
+.vscode
+.idea

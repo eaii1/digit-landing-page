@@ -1,16 +1,17 @@
 services:
   frontend:
     build: .
-    image: mera101/complaint-frontend:v1.3
-    container_name: complaint-frontend
+    image: complaint-landing:v3
+    container_name: complaint-landing
     ports:
       - "9260:80"
     environment:
       - REACT_APP_API_URL=http://localhost:9260
       - REACT_APP_DEFAULT_LANGUAGE=en
-      - REACT_APP_BASE_URL=http://test.mesobcenter.et/digit-ui/citizen/login
+      - REACT_APP_BASE_URL=http://semi.et/digit-ui/citizen/login
     networks:
       - complaint-network
+    restart: unless-stopped
 
 networks:
   complaint-network:
