@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
-<<<<<<< HEAD
+COPY .env ./
 
 # Set the production API URL during build
 # This avoids the "localhost:9260" issue entirely
@@ -22,9 +22,6 @@ ENV REACT_APP_BACKEND_BASE_URL=$REACT_APP_BACKEND_BASE_URL
 ENV REACT_APP_ANALYTICS_API_PATH=$REACT_APP_ANALYTICS_API_PATH
 ENV REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID
 
-=======
-COPY .env ./
->>>>>>> a7e74f5331d9a7087049a67543e6ade7372d4b58
 RUN npm run build
 
 # Production stage
