@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StatsCards from '../components/StatsCards/StatsCards';
 import { DepartmentChart, TrendChart } from '../components/Charts';
 import DepartmentGrid from '../components/DepartmentGrid/DepartmentGrid';
+import { getTenantId } from '../utils/tenantUtils';
 import './HomePage.css';
 
 const HomePage = ({ onNewComplaint, language }) => {
@@ -13,10 +14,34 @@ const HomePage = ({ onNewComplaint, language }) => {
   const [error, setError] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [showDepartmentPopup, setShowDepartmentPopup] = useState(false);
+  const [tenantId, setTenantId] = useState(getTenantId());
+
+  // Listen for URL changes (e.g., when tenant ID changes in query params)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const newTenantId = getTenantId();
+      setTenantId(prevTenantId => {
+        if (newTenantId !== prevTenantId) {
+          return newTenantId;
+        }
+        return prevTenantId;
+      });
+    };
+
+    // Check for URL changes (browser back/forward)
+    window.addEventListener('popstate', handleLocationChange);
+    
+    // Also check on mount
+    handleLocationChange();
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
-  }, [language]);
+  }, [language, tenantId]);
 
   const fetchDashboardData = async () => {
     try {
@@ -24,7 +49,18 @@ const HomePage = ({ onNewComplaint, language }) => {
       setError(null);
       console.log('Fetching data from API...');
       
-      const response = await fetch('http://localhost:9260/pgr-analytics/v1/_summary?tenantId=ethiopia.citya');
+      // Get current tenant ID dynamically
+      const currentTenantId = getTenantId();
+      setTenantId(currentTenantId);
+      
+      const backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URL || 'http://localhost:9260';
+      const analyticsApiPath = process.env.REACT_APP_ANALYTICS_API_PATH || '/pgr-analytics/v1/_summary';
+      
+      const apiUrl = `${backendBaseUrl}${analyticsApiPath}?tenantId=${currentTenantId}`;
+      console.log('API URL:', apiUrl);
+      console.log('Tenant ID:', currentTenantId);
+      
+      const response = await fetch(apiUrl);
       
       console.log('Response status:', response.status);
       
@@ -42,11 +78,8 @@ const HomePage = ({ onNewComplaint, language }) => {
       console.error('Error fetching dashboard data:', error);
       console.error('Error details:', error.message);
       
-      if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-        setError(`CORS Error: Browser blocked the request.`);
-      } else {
-        setError(`Failed to load dashboard data: ${error.message}`);
-      }
+      // Generic error handling - CORS is handled by browser/backend configuration
+      setError(`Failed to load dashboard data: ${error.message}`);
     } finally {
       setLoading(false);
     }

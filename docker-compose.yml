@@ -8,6 +8,11 @@ services:
         # Pass these as build args so the Dockerfile can "bake" them in
         - REACT_APP_API_URL=/pgr-analytics
         - REACT_APP_BASE_URL=/complaint
+        - REACT_APP_BACKEND_BASE_URL=${REACT_APP_BACKEND_BASE_URL:-http://localhost:9260}
+        - REACT_APP_ANALYTICS_API_PATH=${REACT_APP_ANALYTICS_API_PATH:-/pgr-analytics/v1/_summary}
+        # REACT_APP_TENANT_ID is optional - tenant ID is now extracted from URL query params or path
+        # Only set this if you want a default fallback when no tenant is specified in URL
+        - REACT_APP_TENANT_ID=${REACT_APP_TENANT_ID:-}
     container_name: complaint-frontend
     ports:
       - "3000:80"
@@ -15,6 +20,11 @@ services:
       - REACT_APP_DEFAULT_LANGUAGE=en
       - REACT_APP_API_URL=/pgr-analytics
       - REACT_APP_BASE_URL=/complaint
+      - REACT_APP_BACKEND_BASE_URL=${REACT_APP_BACKEND_BASE_URL:-http://localhost:9260}
+      - REACT_APP_ANALYTICS_API_PATH=${REACT_APP_ANALYTICS_API_PATH:-/pgr-analytics/v1/_summary}
+      # REACT_APP_TENANT_ID is optional - tenant ID is now extracted from URL query params or path
+      # Only set this if you want a default fallback when no tenant is specified in URL
+      - REACT_APP_TENANT_ID=${REACT_APP_TENANT_ID:-}
     networks:
       - complaint-network
 
