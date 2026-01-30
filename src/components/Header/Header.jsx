@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef } from 'react';
 import './Header.css';
 
 const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageChange }) => {
@@ -27,6 +27,7 @@ const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageC
     ]
   };
 
+
   useEffect(() => {
     setCurrentDate(getCurrentDate(language));
     
@@ -35,7 +36,8 @@ const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageC
     
     // Check if text needs to scroll
     checkTextWidth();
-    
+  
+
     // Start the alternating animation
     const interval = setInterval(() => {
       setShowPromotion(prev => !prev);
@@ -57,23 +59,23 @@ const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageC
       stopScrolling();
     }
   }, [shouldScroll, showPromotion]);
+const mapToDigitLocale = (lang) => {
+  switch (lang) {
+    case "am":
+      return "am_ET";
+    case "en":
+    default:
+      return "en_ET";
+  }
+};
 
   // Function to save language preference to localStorage
-  const saveLanguagePreference = (lang) => {
-    // Save to localStorage for persistence
-    localStorage.setItem('dashboard_language', lang);
-    
-    // Map our language codes to Digit UI language codes
-    const digitLanguageCode = lang === 'am' ? 'am_ET' : 'en_ET';
-    
-    // Save Digit UI compatible language code
-    localStorage.setItem('digit_language', digitLanguageCode);
-    
-    // Also save to sessionStorage for immediate use
-    sessionStorage.setItem('digit_language', digitLanguageCode);
-    
-    console.log(`Language preference saved: ${lang} -> ${digitLanguageCode}`);
-  };
+ const saveLanguagePreference = (lang) => {
+  const digitLocale = lang === 'am' ? 'am_ET' : 'en_ET';
+
+  console.log(`Language preference saved: ${lang} -> ${digitLocale}`);
+};
+
 
   // Function to load language preference from localStorage
   const loadLanguagePreference = () => {
@@ -172,15 +174,26 @@ const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageC
     return messages[randomIndex];
   };
 
-  const handleLanguageSelect = (e) => {
-    const newLanguage = e.target.value;
-    if (onLanguageChange) {
-      onLanguageChange(newLanguage);
-    }
-    
-    // Save preference when language is changed
-    saveLanguagePreference(newLanguage);
-  };
+const handleLanguageSelect = (e) => {
+  const newLanguage = e.target.value;
+  onLanguageChange?.(newLanguage);
+
+  // Optional: save for dashboard only
+  localStorage.setItem("dashboard_language", newLanguage);
+};
+
+
+
+const handleSubmitComplaint = () => {
+  const locale = language === "am" ? "am_ET" : "en_ET";
+
+  window.location.href =
+    `${process.env.REACT_APP_BASE_URL}?locale=${locale}`;
+};
+
+
+
+
 
   const handleNavigation = (page) => {
     if (onNavigate) {
@@ -188,32 +201,7 @@ const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageC
     }
   };
 
-const handleSubmitComplaint = () => {
-  // Get the Digit UI language code
-  const digitLanguage = language === 'am' ? 'am_ET' : 'en_ET';
-  
-  console.log(`Setting language to: ${digitLanguage}`);
-  
-  // Set locale in localStorage
-  localStorage.setItem('locale', digitLanguage);
-  localStorage.setItem('Citizen.locale', digitLanguage);
-  
-  // Also set a special flag for the external site to know we're forcing language
-  localStorage.setItem('force_language_from_header', digitLanguage);
-  
-  // Redirect with language in URL
-const baseUrl = process.env.REACT_APP_BASE_URL;
 
-  const urlWithLocale = `${baseUrl}?locale=${digitLanguage}&force=true&timestamp=${Date.now()}`;
-  
-  setTimeout(() => {
-    window.location.href = urlWithLocale;
-    
-    if (onNewComplaint) {
-      onNewComplaint();
-    }
-  }, 100);
-};
   return (
     <header>
       <div className="header-top">

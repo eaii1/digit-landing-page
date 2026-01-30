@@ -53,19 +53,12 @@ const HomePage = ({ onNewComplaint, language }) => {
       // The proxy forwards /api requests to http://localhost:9260
       // In production, use REACT_APP_API_URL or default to http://localhost:9260
       let baseUrl;
-      if (process.env.NODE_ENV === 'development') {
-        // Use proxy in development to avoid CORS
-        baseUrl = '/api';
-        console.log('Using proxy (/api) to avoid CORS in development');
-      } else {
+   
         // In production, use REACT_APP_API_URL or default
         baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:9260';
         // Validate and correct the API URL if it's pointing to the wrong port
-        if (baseUrl.includes(':3000') || baseUrl.includes(':5000')) {
-          console.warn(`REACT_APP_API_URL (${baseUrl}) points to wrong port. Using http://localhost:9260 for pgr-analytics API.`);
-          baseUrl = 'http://localhost:9260';
-        }
-      }
+     
+      
       
       const url = `${baseUrl}/pgr-analytics/v1/_summary?tenantId=ethiopia.citya`;
       console.log('Fetching from URL:', url);
@@ -486,11 +479,7 @@ Please check:
           <h3>{language === 'en' ? 'Connection Error' : 'የግንኙነት ስህተት'}</h3>
           <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'left', fontSize: '14px' }}>{error}</pre>
           
-          <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-            <button onClick={fetchDashboardData} className="retry-btn">
-              {language === 'en' ? 'Retry Connection' : 'አገናኝ እንደገና ይሞክሩ'}
-            </button>
-          </div>
+         
         </div>
       </div>
     );

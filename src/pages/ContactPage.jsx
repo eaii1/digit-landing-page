@@ -19,9 +19,9 @@ const ContactPage = ({ language }) => {
           title: "Phone Numbers",
           icon: "fas fa-phone",
           details: [
-            "Main Office: +251-11-111-1111",
-            "Complaint Hotline: +251-11-222-2222",
-            "Technical Support: +251-11-333-3333"
+            "Main Office: +251 111 400 740",
+            "Complaint Hotline: +251 111 400 740",
+            "Technical Support: +251 111 400 740"
           ]
         },
         email: {
@@ -57,9 +57,9 @@ const ContactPage = ({ language }) => {
           title: "ስልክ ቁጥሮች",
           icon: "fas fa-phone",
           details: [
-            "ዋና ቢሮ: +251-11-111-1111",
-            "የቅሬታ ሆትላይን: +251-11-222-2222",
-            "የቴክኒካል ድጋፍ: +251-11-333-3333"
+            "ዋና ቢሮ: +251 111 400 740",
+            "የቅሬታ ሆትላይን: +251 111 400 740",
+            "የቴክኒካል ድጋፍ: +251 111 400 740"
           ]
         },
         email: {
