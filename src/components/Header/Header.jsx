@@ -77,7 +77,7 @@ const mapToDigitLocale = (lang) => {
 };
 
 
-  // Function to load language preference from localStorage
+  // Function to load language preference from localStoragelocalstorage
   const loadLanguagePreference = () => {
     const savedLang = localStorage.getItem('dashboard_language');
     if (savedLang && onLanguageChange) {
@@ -179,7 +179,6 @@ const handleLanguageSelect = (e) => {
   onLanguageChange?.(newLanguage);
 
   // Optional: save for dashboard only
-  localStorage.setItem("dashboard_language", newLanguage);
 };
 
 
