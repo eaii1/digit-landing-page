@@ -60,7 +60,7 @@ const HomePage = ({ onNewComplaint, language }) => {
      
       
       
-      const url = `${baseUrl}/pgr-analytics/v1/_summary?tenantId=ethiopia.citya`;
+      const url = `${baseUrl}/pgr-analytics/v1/_summary?tenantId=ethiopia`;
       console.log('Fetching from URL:', url);
       console.log('REACT_APP_API_URL from env:', process.env.REACT_APP_API_URL || 'not set');
       console.log('Using baseUrl:', baseUrl);
@@ -113,7 +113,7 @@ const HomePage = ({ onNewComplaint, language }) => {
 
 Please check:
 - Is the API server running at http://localhost:9260?
-- Test with: curl "http://localhost:9260/pgr-analytics/v1/_summary?tenantId=ethiopia.citya"
+- Test with: curl "http://localhost:9260/pgr-analytics/v1/_summary?tenantId=ethiopia"
 - Update your .env file: REACT_APP_API_URL=http://localhost:9260 (or remove it to use default)
 - Did you restart the dev server after changing .env?
 - Current API URL being used: ${apiUrl}`);

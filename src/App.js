@@ -13,10 +13,14 @@ function App() {
   const [language, setLanguage] = useState('en');
 
   useEffect(() => {
-    // Load language preference from localStorage
-    const savedLanguage = localStorage.getItem('complaintSystemLanguage') || 'en';
-    setLanguage(savedLanguage);
-  }, []);
+  // Load language preference from localStorage
+  const rawLanguage = localStorage.getItem('Digit.locale') || 'en';
+
+  // Split by underscore and take the first part (e.g., "en_ET" -> "en")
+  const savedLanguage = rawLanguage.split('_')[0];
+
+  setLanguage(savedLanguage);
+}, []);
 
   const handleNavigation = (page) => {
     setCurrentPage(page);
@@ -31,7 +35,6 @@ function App() {
 
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
-    localStorage.setItem('complaintSystemLanguage', newLanguage);
   };
 
   const renderPage = () => {

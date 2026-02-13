@@ -179,7 +179,7 @@
 .chart-container {
   background-color: rgb(220, 220, 220);
   border-radius: 8px;
-  padding: 20px;
+  padding: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border-left: 4px solid var(--pmo-blue);
 }
@@ -443,7 +443,7 @@
 
 @media (max-width: 900px) {
   .chart-container {
-    max-width: 95%;
+    max-width: 100%;
     padding: 20px;
   }
   
@@ -454,7 +454,7 @@
 
 @media (max-width: 600px) {
   .chart-container {
-    padding: 15px;
+    padding: 5px;
   }
   
   .chart-wrapper {

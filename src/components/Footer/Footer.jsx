@@ -66,8 +66,8 @@ const Footer = ({ onNavigate, language }) => {
             <h4>{language === 'en' ? 'Contact Information' : 'የመገኛ መረጃ'}</h4>
             <ul className="footer-links">
               <li><i className="fas fa-map-marker-alt"></i> {language === 'en' ? 'Prime Minister Office, Addis Ababa, Ethiopia' : 'የጠቅላይ ሚኒስትር ቢሮ፣ አዲስ አበባ፣ ኢትዮጵያ'}</li>
-              <li><i className="fas fa-phone"></i> +251-11-111-1111</li>
-              <li><i className="fas fa-envelope"></i> complaints@pmo.gov.et</li>
+              <li><i className="fas fa-phone"></i> 011-1- 54-54-09</li>
+              <li><i className="fas fa-envelope"></i> info@pmo.gov.et</li>
               <li><i className="fas fa-clock"></i> {language === 'en' ? 'Mon-Fri: 8:30 AM - 5:30 PM' : 'ሰኞ-አርብ: 8:30 ጥዋት - 5:30 ከሰዓት'}</li>
             </ul>
           </div>

@@ -19,9 +19,9 @@ const ContactPage = ({ language }) => {
           title: "Phone Numbers",
           icon: "fas fa-phone",
           details: [
-            "Main Office: +251 111 400 740",
-            "Complaint Hotline: +251 111 400 740",
-            "Technical Support: +251 111 400 740"
+            "Main Office: 011-1- 54-54-09",
+            "Complaint Hotline: 011-1- 54-54-09",
+            "Technical Support: 011-1- 54-54-09"
           ]
         },
         email: {
@@ -29,8 +29,8 @@ const ContactPage = ({ language }) => {
           icon: "fas fa-envelope",
           details: [
             "General Inquiries: info@pmo.gov.et",
-            "Complaints: complaints@pmo.gov.et",
-            "Technical Support: support@complaintsystem.et"
+            "Complaints: info@pmo.gov.et",
+            "Technical Support: info@pmo.gov.et"
           ]
         },
         hours: {
@@ -57,9 +57,9 @@ const ContactPage = ({ language }) => {
           title: "ስልክ ቁጥሮች",
           icon: "fas fa-phone",
           details: [
-            "ዋና ቢሮ: +251 111 400 740",
-            "የቅሬታ ሆትላይን: +251 111 400 740",
-            "የቴክኒካል ድጋፍ: +251 111 400 740"
+            "ዋና ቢሮ: 011-1- 54-54-09",
+            "የቅሬታ ሆትላይን: 011-1- 54-54-09",
+            "የቴክኒካል ድጋፍ: 011-1- 54-54-09"
           ]
         },
         email: {
@@ -67,8 +67,8 @@ const ContactPage = ({ language }) => {
           icon: "fas fa-envelope",
           details: [
             "አጠቃላይ መረጃ: info@pmo.gov.et",
-            "ቅሬታዎች: complaints@pmo.gov.et",
-            "የቴክኒካል ድጋፍ: support@complaintsystem.et"
+            "ቅሬታዎች: info@pmo.gov.et",
+            "የቴክኒካል ድጋፍ: info@pmo.gov.et"
           ]
         },
         hours: {

@@ -16,7 +16,7 @@ const Header = ({ onNewComplaint, currentPage, onNavigate, language, onLanguageC
       "Your feedback helps improve government services for all citizens.",
       "Average complaint resolution time: 3.5 working days.",
       "Complaint system available 24/7 for your convenience.",
-      "Need help? Contact our support team at 011-111-1111."
+      "Need help? Contact our support team at011-1- 54-54-09."
     ],
     am: [
       "ቅሬታዎን በኦንላይን ያስገቡ እና እድገቱን በቀጥታ ይከታተሉ።",
@@ -176,9 +176,30 @@ const mapToDigitLocale = (lang) => {
 
 const handleLanguageSelect = (e) => {
   const newLanguage = e.target.value;
+  const digitLocale = newLanguage === 'am' ? 'am_ET' : 'en_ET';
+
+  // 1. Notify parent components (to update the Header UI)
   onLanguageChange?.(newLanguage);
 
-  // Optional: save for dashboard only
+  // 2. Prepare the Digit structured object
+  const ttl = 86400; // 24 hours in seconds
+  const expiry = Date.now() + ttl * 1000;
+  const structuredValue = {
+    value: digitLocale,
+    ttl: ttl,
+    expiry: expiry
+  };
+
+  // 3. Stringify for storage
+  const stringifiedValue = JSON.stringify(structuredValue);
+
+  // 4. Save ONLY to SessionStorage
+  // These are the keys Digit UI typically checks for localization
+  const localeKeys = ["locale", "lang", "Digit.locale"];
+  
+  localeKeys.forEach((key) => {
+    sessionStorage.setItem(key, stringifiedValue);
+  });
 };
 
 
@@ -237,8 +258,8 @@ const handleSubmitComplaint = () => {
               </div>
             </div>
             <div className="header-top-links">
-              <a href="tel:0111111111"><i className="fas fa-phone"></i> 011-111-1111</a>
-              <a href="mailto:complaints@pmo.gov.et"><i className="fas fa-envelope"></i> complaints@pmo.gov.et</a>
+              <a href="tel:0111111111"><i className="fas fa-phone"></i>011-1- 54-54-09</a>
+              <a href="mailto:info@pmo.gov.et"><i className="fas fa-envelope"></i> info@pmo.gov.et</a>
             </div>
           </div>
         </div>
